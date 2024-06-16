@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  ### Postgres database for Inventory
+  db-inventory:
+    container_name: db_inventory
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: db_inventory
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test123
+    ports:
+      - "5431:5431"
+    expose:
+      - 5431
+    command: -p 5431
+
+  ### MySQL database for Orders
+  db-orders:
+    container_name: db_orders
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: db_orders
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test123
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3307"
+    expose:
+      - 3306
+
+  ### Postgres database for Products
+  db-products:
+    container_name: db_products
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: db_products
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test123
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
