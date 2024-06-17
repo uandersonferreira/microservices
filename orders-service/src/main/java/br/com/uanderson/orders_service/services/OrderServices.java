@@ -2,14 +2,13 @@ package br.com.uanderson.orders_service.services;
 
 import br.com.uanderson.orders_service.model.entities.Order;
 import br.com.uanderson.orders_service.model.entities.OrderItems;
-import br.com.uanderson.orders_service.model.entities.dtos.BaseResponse;
-import br.com.uanderson.orders_service.model.entities.dtos.OrderItemRequest;
-import br.com.uanderson.orders_service.model.entities.dtos.OrderRequest;
+import br.com.uanderson.orders_service.model.entities.dtos.*;
 import br.com.uanderson.orders_service.respositories.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -42,6 +41,22 @@ public class OrderServices {
             throw new IllegalArgumentException("Some of the products are not in stock");
         }
 
+    }
+
+    public List<OrderResponse> getAllOrders(){
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream().map(this::mapToOrderResponse).collect(Collectors.toList());
+    }
+
+    private OrderResponse mapToOrderResponse(Order order) {
+        return new OrderResponse(order.getId(), order.getOrderNumber(),
+                order.getOrderItems().stream().map(this::mapToOrderItemRequest).collect(Collectors.toList())
+        );
+    }
+
+    private OrderItemResponse mapToOrderItemRequest(OrderItems orderItems) {
+        return new OrderItemResponse(orderItems.getId(), orderItems.getSku(),
+                orderItems.getPrice(), orderItems.getQuantity());
     }
 
     private OrderItems mapOrderItemRequestToOrderItem(OrderItemRequest orderItemRequest, Order order) {
