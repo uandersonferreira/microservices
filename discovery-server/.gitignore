@@ -1,4 +1,4 @@
-README.md
+../readmes/discovery-server-eureka-config.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
