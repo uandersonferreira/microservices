@@ -16,11 +16,11 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
-                .csrf(csrf -> csrf.disable()) // Desabilita CSRF
-                .authorizeExchange(exchange -> exchange
-                        .anyExchange().authenticated() // Requer autenticação para todas as trocas
-                )
-                .oauth2Login(withDefaults()); // Habilita login via OAuth2
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .authorizeExchange(auth -> {
+                    auth.anyExchange().authenticated();
+                })
+                .oauth2Login(Customizer.withDefaults());
 
         return http.build();
     }
