@@ -26,10 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(
-                        request -> request.getRequestURI()
-                                .contains("/actuator/order")).permitAll()
-                                .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .oauth2ResourceServer(configure -> configure.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter())));
 
         return http.build();
@@ -51,7 +48,8 @@ class KeycloakRealmRoleConverter implements Converter<Jwt, Collection<GrantedAut
             return List.of();
         }
 
-        final Map<String, List<String>> realmAccess = (Map<String, List<String>>) jwt.getClaims().get("realm_access");
+        final Map<String, List<String>> realmAccess = (Map<String, List<String>>) jwt.getClaims()
+                .get("realm_access");
 
         return realmAccess.get("roles").stream()
                 .map(roleName -> "ROLE_" + roleName)
