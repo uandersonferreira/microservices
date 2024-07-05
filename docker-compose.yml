@@ -3,30 +3,30 @@ version: '3'
 services:
   ### Postgres database for Inventory
   db-inventory:
-    container_name: db-inventory
-    image: postgres:latest
+    container_name: db-inventory # Nome do contêiner
+    image: postgres:latest # Imagem do Docker a ser usada
     environment:
-      POSTGRES_DB: db_inventory
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test123
+      POSTGRES_DB: db_inventory # Nome do banco de dados
+      POSTGRES_USER: test # Usuário do banco de dados
+      POSTGRES_PASSWORD: test123 # Senha do banco de dados
     ports:
-      - "5431:5431"
+      - "5431:5431" # Mapeamento de portas: host:container
     expose:
-      - 5431
-    command: -p 5431
+      - 5431 # Expor a porta para os outros serviços no Docker
+    command: -p 5431 # Comando para especificar a porta do Postgres
     volumes:
-      - db-inventory-data:/var/lib/postgresql/data
+      - db-inventory-data:/var/lib/postgresql/data # Volume para persistência de dados
 
   ### MySQL database for Orders
   db-orders:
     container_name: db-orders
     image: mysql:8.0.33
-    restart: unless-stopped
+    restart: unless-stopped # Reiniciar o contêiner a menos que seja manualmente parado
     environment:
       MYSQL_DATABASE: db_orders
       MYSQL_USER: test
       MYSQL_PASSWORD: test123
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root # Senha do usuário root
     ports:
       - "3306:3306"
     expose:
@@ -74,22 +74,56 @@ services:
       - "8181:8181"
     expose:
       - 8181
-    command: [ "start-dev" ]
+    command: [ "start-dev" ] # Comando para iniciar o Keycloak no modo de desenvolvimento
     depends_on:
-      - db-keycloak
+      - db-keycloak # Dependência do serviço db-keycloak
     environment:
-      DB_VENDOR: POSTGRES
-      DB_ADD: db-keycloak
-      DB_DATABASE: db_keycloak
-      DB_PORT: 5433
-      DB_USER: test
-      DB_PASSWORD: test123
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_HTTP_PORT: 8181
+      DB_VENDOR: POSTGRES # Tipo de banco de dados
+      DB_ADD: db-keycloak # Endereço do banco de dados
+      DB_DATABASE: db_keycloak # Nome do banco de dados
+      DB_PORT: 5433 # Porta do banco de dados
+      DB_USER: test # Usuário do banco de dados
+      DB_PASSWORD: test123 # Senha do banco de dados
+      KEYCLOAK_ADMIN: admin # Nome do administrador do Keycloak
+      KEYCLOAK_ADMIN_PASSWORD: admin # Senha do administrador do Keycloak
+      KC_HTTP_PORT: 8181 # Porta HTTP do Keycloak
+    volumes:
+      - keycloak-data:/opt/keycloak/data # Volume para persistência de dados do Keycloak
+
+  ### Zookeeper
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181 # Porta do cliente Zookeeper
+      ZOOKEEPER_TICK_TIME: 2000 # Tempo de intervalo do Zookeeper em milissegundos
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper # Volume para persistência de dados do Zookeeper
+
+  ### Apache Kafka
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper # Dependência do serviço Zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1 # ID do broker Kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # Conexão ao Zookeeper
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT # Mapeamento do protocolo de segurança do listener
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092, PLAINTEXT_HOST://localhost:9092 # Listeners anunciados - endpoints de comunicação entre os cluster e clientes
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Fator de replicação do tópico de offsets
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1 # Número mínimo de réplicas ISR para logs de estado de transação
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTION: 1 # Fator de replicação para logs de estado de transação
+    volumes:
+      - kafka-data:/var/lib/kafka # Volume para persistência de dados do Kafka
 
 volumes:
-  db-inventory-data:
-  db-orders-data:
-  db-products-data:
-  db-keycloak-data:
+  db-inventory-data: # Volume para dados do db-inventory
+  db-orders-data: # Volume para dados do db-orders
+  db-products-data: # Volume para dados do db-products
+  db-keycloak-data: # Volume para dados do db-keycloak
+  keycloak-data: # Volume para dados do Keycloak
+  zookeeper-data: # Volume para dados do Zookeeper
+  kafka-data: # Volume para dados do Kafka
