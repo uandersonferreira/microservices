@@ -119,6 +119,14 @@ services:
     volumes:
       - kafka-data:/var/lib/kafka # Volume para persistência de dados do Kafka
 
+  ### Zipkin
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin:2.24.2
+    ports:
+      - "9411:9411"
+
+
 volumes:
   db-inventory-data: # Volume para dados do db-inventory
   db-orders-data: # Volume para dados do db-orders
