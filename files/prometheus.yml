@@ -23,3 +23,7 @@ scrape_configs:
       - targets: ['host.docker.internal:8080']
         labels:
           application: 'Inventory Service'
+
+
+# endpoint que será usado no grafana para encontrar o serviço do Prometheus
+# host.docker.internal:9090

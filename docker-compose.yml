@@ -155,6 +155,7 @@ services:
       GF_SECURITY_ADMIN_USER: admin
     depends_on:
       - prometheus # Dependência do serviço Prometheus
+    user: "472:472"
 
 
 volumes:
