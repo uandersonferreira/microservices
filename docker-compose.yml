@@ -137,6 +137,26 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
 
+  ### Grafana
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:10.0.3
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    links:
+      - prometheus
+    volumes:
+      - ./files/grafana:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: admin
+    depends_on:
+      - prometheus # Dependência do serviço Prometheus
+
+
 volumes:
   db-inventory-data: # Volume para dados do db-inventory
   db-orders-data: # Volume para dados do db-orders
