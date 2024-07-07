@@ -43,7 +43,7 @@ public class InventoryService {
             }
         });
 
-        return (erroList.size() > 0) ? new BaseResponse(erroList.toArray(new String[0])) : new BaseResponse(null);
+        return (!erroList.isEmpty()) ? new BaseResponse(erroList.toArray(new String[0])) : new BaseResponse(null);
 
 
     }//method
